@@ -11,11 +11,11 @@
 #define MAXLINE 1024
 
 int main(int argc, char **argv) {
+    /*
     int sockfd, client_sockfd;
     struct sockaddr_in server;
-    struct sockaddr_in client;
     char buff[MAXLINE];
-    int sockaddr_len = sizeof(struct sockaddr_in);
+    socklen_t sockaddr_len = sizeof(struct sockaddr_in);
     int buff_len;
 
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == ERROR) {
@@ -36,16 +36,12 @@ int main(int argc, char **argv) {
     listen(sockfd, 5);
 
     while (true) {
-
         client_sockfd = accept(sockfd, (struct sockaddr*) NULL, NULL);
         // client_sockfd = accept(sockfd, (struct sockaddr*)&client, &sockaddr_len);
         if (client_sockfd == ERROR) {
             perror("server: can't accept");
             exit(-1);
         }
-
-        printf("New client connected with port number %d and IP %s\n", ntohs(client.sin_port),
-               inet_ntoa(client.sin_addr));
 
         buff_len = 1;
         while (buff_len != 0) {
@@ -55,6 +51,6 @@ int main(int argc, char **argv) {
         printf("Client disconnected\n");
         close(client_sockfd);
     }
-    
+     */
 }
 
