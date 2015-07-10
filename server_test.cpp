@@ -36,9 +36,33 @@ TEST(Tread, Creation) {
     t2.join();
 }
 
-TEST(StartStop, Creation) {
+TEST(StartStop, SingleConnection) {
     Server server(50000);
-    server.make_thread();
+    server.start(make_echo);
+
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr_in servaddr;
+
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(50000);
+    bzero(&servaddr, sizeof(servaddr));
+    // Inet_pton(AF_INET, argv[1], &servaddr.sin_addr)
+    connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
+    write(sockfd, "hello", 5);
+    if (read(sockfd, "hello", 10) == write(sockfd, "hello", 1)) {
+        printf("OK");
+    } else {
+        printf("NOT OK");
+    }
+
+    // create socket()
+    // connect() to server
+    // send request
+    // check response
+
+    sleep(3);
+
+    server.stop();
 }
 
 

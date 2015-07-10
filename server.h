@@ -16,6 +16,7 @@
 #include <string.h>
 #include <atomic> // use std::atomic<bool> run;
 #include <thread>
+#include <functional>
 #include <poll.h>
 
 #define ERROR -1
@@ -26,22 +27,36 @@
 
 class Server {
 private:
+    int sockfd_;
+    int port_;
+    std::atomic<bool> run_;
+    std::thread t_;
 
-    int sockfd, client_sockfd;
-    struct sockaddr_in server;
-    char buff[MAXLINE];
-    socklen_t sockaddr_len = sizeof(struct sockaddr_in);
-    int buff_len;
+    void accept_loop(std::function<void(int)> handler) {
+        struct pollfd fds[1];
 
-    struct pollfd fds[1];
-    std::atomic<bool> run;
-    
+        while (run_) {
+            int flag = poll(fds, 1, 50);
+            if(flag == 1) {
+                int client_sockfd = accept(sockfd_, (struct sockaddr*) NULL, NULL);
+                if (client_sockfd == ERROR) {
+                    perror("server: can't accept");
+                    exit(-1);
+                }
+
+                handler(client_sockfd);
+            }
+        }
+    }
+
 public:
-    Server() : run(true) {}
-    Server(int port) {}
+    Server(int port) : port_(port), run_(true) {}
 
-    void create_socket() {
-        if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == ERROR) {
+    void start(std::function<void(int)> handler) {
+        struct sockaddr_in server;
+        socklen_t sockaddr_len = sizeof(struct sockaddr_in);
+
+        if ((sockfd_ = socket(AF_INET, SOCK_STREAM, 0)) == ERROR) {
             perror("server: can't open stream socket");
             exit(-1);
         }
@@ -51,51 +66,33 @@ public:
         server.sin_port = htons(50000);
         server.sin_addr.s_addr = INADDR_ANY;
         bzero(&server.sin_zero, 8);
-    }
 
-    void bind_and_listen() {
-        if ((bind(sockfd, (struct sockaddr *)&server, sockaddr_len)) == ERROR) {
+        if ((bind(sockfd_, (struct sockaddr *)&server, sockaddr_len)) == ERROR) {
             perror("server: can't bind local address");
             exit(-1);
         }
-        listen(sockfd, 5);
+        listen(sockfd_, 5);
+
+        t_ = std::thread(&Server::accept_loop, this, handler);
     }
 
-    void start() {
-        while (true) {
-            std::thread t(&Server::run, this);
-            int flag = poll(fds, 1, 50);
-            if(flag == 1) {
-                client_sockfd = accept(sockfd, (struct sockaddr*) NULL, NULL);
-                if (client_sockfd == ERROR) {
-                    perror("server: can't accept");
-                    exit(-1);
-                }
-            }
-        }
-    }
     void stop() {
-        run = false;
-        t.join();
-    }
-
-    void make_thread() {
-        start();
-        usleep(100000);
-        stop();
-    }
-
-    void make_echo() {
-        buff_len = 1;
-        while (buff_len != 0) {
-            buff_len = read(client_sockfd, buff, MAXLINE);
-            write(client_sockfd, buff, buff_len);
-        }
-        printf("Client disconnected\n");
-        close(client_sockfd);
+        run_ = false;
+        t_.join();
     }
 };
 
+void make_echo(int client_sockfd) {
+    int buff_len = 1;
+    char buff[MAXLINE];
+
+    while (buff_len != 0) {
+        buff_len = read(client_sockfd, buff, MAXLINE);
+        write(client_sockfd, buff, buff_len);
+    }
+    printf("Client disconnected\n");
+    close(client_sockfd);
+}
 
 #endif
 

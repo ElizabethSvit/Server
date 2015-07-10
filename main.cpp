@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include "server.h"
 
 #define ERROR -1
 #define MAXLINE 1024
@@ -16,6 +17,11 @@ int main(int argc, char **argv) {
     struct sockaddr_in server;
     char buff[MAXLINE];
     socklen_t sockaddr_len = sizeof(struct sockaddr_in);
+    int sockfd, client_sockfd;
+    struct sockaddr_in server;
+    struct sockaddr_in client;
+    char buff[MAXLINE];
+    int sockaddr_len = sizeof(struct sockaddr_in);
     int buff_len;
 
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == ERROR) {
@@ -26,6 +32,7 @@ int main(int argc, char **argv) {
     server.sin_family = AF_INET;
     // server.sin_port = htons(atoi(argv[1]));
     server.sin_port = htons(50000);
+    server.sin_port = htons(atoi(argv[1]));
     server.sin_addr.s_addr = INADDR_ANY;
     bzero(&server.sin_zero, 8);
 
@@ -38,10 +45,14 @@ int main(int argc, char **argv) {
     while (true) {
         client_sockfd = accept(sockfd, (struct sockaddr*) NULL, NULL);
         // client_sockfd = accept(sockfd, (struct sockaddr*)&client, &sockaddr_len);
+
+        client_sockfd = accept(sockfd, (struct sockaddr*) NULL, NULL);
         if (client_sockfd == ERROR) {
             perror("server: can't accept");
             exit(-1);
         }
+        printf("New client connected with port number %d and IP %s\n", ntohs(client.sin_port),
+               inet_ntoa(client.sin_addr));
 
         buff_len = 1;
         while (buff_len != 0) {
@@ -52,5 +63,12 @@ int main(int argc, char **argv) {
         close(client_sockfd);
     }
      */
+    
+    Server s(50000);
+//    s.start();
+
+    while(true) { sleep(10); }
+
+    return 0;
 }
 
