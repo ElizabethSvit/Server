@@ -9,6 +9,7 @@
 #include "gtest/gtest.h"
 #include "server.h"
 #include <thread>
+#include <string.h>
 
 TEST(Server, Creation) {
     int a = 1;
@@ -46,21 +47,25 @@ TEST(StartStop, SingleConnection) {
     servaddr.sin_family = AF_INET;
     servaddr.sin_port = htons(50000);
     bzero(&servaddr, sizeof(servaddr));
-    // Inet_pton(AF_INET, argv[1], &servaddr.sin_addr)
+    inet_pton(AF_INET, "127.0.0.1", &servaddr.sin_addr);
     connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
     write(sockfd, "hello", 5);
-    if (read(sockfd, "hello", 10) == write(sockfd, "hello", 1)) {
+    std::string buff;
+    read(sockfd, &buff, 1024);
+    // std::string read_str;
+
+    /*if (buff == "hello") {
         printf("OK");
     } else {
         printf("NOT OK");
-    }
+    }*/
 
     // create socket()
     // connect() to server
     // send request
     // check response
 
-    sleep(3);
+    sleep(2);
 
     server.stop();
 }
