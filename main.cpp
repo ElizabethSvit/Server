@@ -6,17 +6,23 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <string.h>
+<<<<<<< HEAD
 #include "server.h"
+=======
+>>>>>>> a31c3c50e524ac801828242bae5454be043a4f9d
 
 #define ERROR -1
 #define MAXLINE 1024
 
 int main(int argc, char **argv) {
+<<<<<<< HEAD
     /*
     int sockfd, client_sockfd;
     struct sockaddr_in server;
     char buff[MAXLINE];
     socklen_t sockaddr_len = sizeof(struct sockaddr_in);
+=======
+>>>>>>> a31c3c50e524ac801828242bae5454be043a4f9d
     int sockfd, client_sockfd;
     struct sockaddr_in server;
     struct sockaddr_in client;
@@ -30,8 +36,11 @@ int main(int argc, char **argv) {
     }
 
     server.sin_family = AF_INET;
+<<<<<<< HEAD
     // server.sin_port = htons(atoi(argv[1]));
     server.sin_port = htons(50000);
+=======
+>>>>>>> a31c3c50e524ac801828242bae5454be043a4f9d
     server.sin_port = htons(atoi(argv[1]));
     server.sin_addr.s_addr = INADDR_ANY;
     bzero(&server.sin_zero, 8);
@@ -43,14 +52,21 @@ int main(int argc, char **argv) {
     listen(sockfd, 5);
 
     while (true) {
+<<<<<<< HEAD
         client_sockfd = accept(sockfd, (struct sockaddr*) NULL, NULL);
         // client_sockfd = accept(sockfd, (struct sockaddr*)&client, &sockaddr_len);
+=======
+>>>>>>> a31c3c50e524ac801828242bae5454be043a4f9d
 
         client_sockfd = accept(sockfd, (struct sockaddr*) NULL, NULL);
         if (client_sockfd == ERROR) {
             perror("server: can't accept");
             exit(-1);
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> a31c3c50e524ac801828242bae5454be043a4f9d
         printf("New client connected with port number %d and IP %s\n", ntohs(client.sin_port),
                inet_ntoa(client.sin_addr));
 
@@ -62,6 +78,7 @@ int main(int argc, char **argv) {
         printf("Client disconnected\n");
         close(client_sockfd);
     }
+<<<<<<< HEAD
      */
     
     Server s(50000);
@@ -70,5 +87,8 @@ int main(int argc, char **argv) {
     while(true) { sleep(10); }
 
     return 0;
+=======
+
+>>>>>>> a31c3c50e524ac801828242bae5454be043a4f9d
 }
 
